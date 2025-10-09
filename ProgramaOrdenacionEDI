@@ -135,3 +135,25 @@ void seleccion(int nums[N], int n) {
     }
 }
 
+void qs(int nums[N], int inf, int sup){
+    int p;
+    if(inf < sup){
+        p = particion(nums, inf, sup);
+        qs(nums, inf, p -1);
+        qs(nums, p +1, sup);
+    }
+}
+int particion(int nums[N], int inf, int sup){
+    int piv = nums[sup];
+    int i = inf - 1;
+    int aux;
+    for(int j = inf, j < sup; j ++){
+        if(nums[j] < piv){
+            i ++;
+            swap(&nums[i], &nums[j]);
+        }
+    }
+    swap(&nums[sup], &nums[i + 1]);
+}
+
+
