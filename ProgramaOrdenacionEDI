@@ -1,103 +1,87 @@
-// Tomar el tiempo de los algoritmos: Burbuja, Baraja, Seleccion
-// Llenar un arreglo con datos random
-//Documentar el proceso en un PDF, Analisis de tiempo en los 3 algoritmos, Que algoritmo me parece mejor, Captura de pantalla de las 3 ejecuciones
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-#define N 100000
+#define N 80000
 
-// Prototipos de funciones
-void llenaArregloRandom(int nums[N], int n);
-void copiarArreglo(int origen[N], int destino[N], int n);
-void swap(int *n1, int *n2);
-void burbuja(int nums[N], int n);
-void baraja(int nums[N], int n);
-void seleccion(int nums[N], int n);
-void menu();
+void llenaArregloRandom(int nums[], int n);
+void copiarArreglo(int origen[], int destino[], int n);
+void swap(int *a, int *b);
+void burbuja(int nums[], int n);
+void baraja(int nums[], int n);
+void seleccion(int nums[], int n);
+int particion(int nums[], int inf, int sup);
+void quicksort(int nums[], int inf, int sup);
 
 int main() {
-    menu();
+    int numeros[N];
+    int copia1[N], copia2[N], copia3[N], copia4[N];
+    clock_t inicio, fin;
+    double tiempo;
+    time_t inicioReal, finReal;
+
+    srand(time(NULL));
+    llenaArregloRandom(numeros, N);
+
+    copiarArreglo(numeros, copia1, N);
+    copiarArreglo(numeros, copia2, N);
+    copiarArreglo(numeros, copia3, N);
+    copiarArreglo(numeros, copia4, N);
+
+    inicioReal = time(NULL);
+
+    printf("\nCuanto tiempo tardan los algoritmos de ordenacion...\n");
+
+    inicio = clock();
+    burbuja(copia1, N);
+    fin = clock();
+    tiempo = (double)(fin - inicio) / CLOCKS_PER_SEC;
+    printf("Burbuja termino en: %.2f segundos\n", tiempo);
+
+    inicio = clock();
+    baraja(copia2, N);
+    fin = clock();
+    tiempo = (double)(fin - inicio) / CLOCKS_PER_SEC;
+    printf("Baraja termino en: %.2f segundos\n", tiempo);
+
+    inicio = clock();
+    seleccion(copia3, N);
+    fin = clock();
+    tiempo = (double)(fin - inicio) / CLOCKS_PER_SEC;
+    printf("Selección termino en: %.2f segundos\n", tiempo);
+
+    inicio = clock();
+    quicksort(copia4, 0, N - 1);
+    fin = clock();
+    tiempo = (double)(fin - inicio) / CLOCKS_PER_SEC;
+    printf("Quicksort termino en: %.2f segundos\n", tiempo);
+
+    finReal = time(NULL);
+    printf("\n Tiempo total transcurrido: %.0f segundos\n\n", difftime(finReal, inicioReal));
+
     return 0;
 }
 
-// --- Función de menú ---
-void menu() {
-    int opcion;
-    int numeros[N], copia[N];
-    clock_t inicio, fin;
-    double tiempoTranscurrido;
 
-    srand(time(NULL)); // Semilla para rand()
-    llenaArregloRandom(numeros, N);
-
-    printf("\n===== MENÚ DE ORDENAMIENTO =====\n");
-    printf("1. Ordenamiento Burbuja\n");
-    printf("2. Ordenamiento Baraja (Inserción)\n");
-    printf("3. Ordenamiento Selección\n");
-    printf("4. Salir\n");
-    printf("Seleccione una opción: ");
-    scanf("%d", &opcion);
-
-    copiarArreglo(numeros, copia, N);
-
-    switch (opcion) {
-        case 1:
-            inicio = clock();
-            burbuja(copia, N);
-            fin = clock();
-            tiempoTranscurrido = (double)(fin - inicio) / CLOCKS_PER_SEC;
-            printf("\nTiempo transcurrido (Burbuja): %.2f segundos\n", tiempoTranscurrido);
-            break;
-
-        case 2:
-            inicio = clock();
-            baraja(copia, N);
-            fin = clock();
-            tiempoTranscurrido = (double)(fin - inicio) / CLOCKS_PER_SEC;
-            printf("\nTiempo transcurrido (Baraja / Inserción): %.2f segundos\n", tiempoTranscurrido);
-            break;
-
-        case 3:
-            inicio = clock();
-            seleccion(copia, N);
-            fin = clock();
-            tiempoTranscurrido = (double)(fin - inicio) / CLOCKS_PER_SEC;
-            printf("\nTiempo transcurrido (Selección): %.2f segundos\n", tiempoTranscurrido);
-            break;
-
-        case 4:
-            printf("\nSaliendo del programa...\n");
-            exit(0);
-
-        default:
-            printf("\nOpción no válida.\n");
-            break;
-    }
-}
-
-// --- Funciones auxiliares ---
-void llenaArregloRandom(int nums[N], int n) {
+void llenaArregloRandom(int nums[], int n) {
     for (int i = 0; i < n; i++) {
-        nums[i] = rand();
+        nums[i] = rand() % 1000000;
     }
 }
 
-void copiarArreglo(int origen[N], int destino[N], int n) {
+void copiarArreglo(int origen[], int destino[], int n) {
     for (int i = 0; i < n; i++) {
         destino[i] = origen[i];
     }
 }
 
-void swap(int *n1, int *n2) {
-    int aux = *n1;
-    *n1 = *n2;
-    *n2 = aux;
+void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
 }
 
-// --- Ordenamiento Burbuja ---
-void burbuja(int nums[N], int n) {
+void burbuja(int nums[], int n) {
     for (int i = 0; i < n - 1; i++) {
         for (int j = 0; j < n - 1 - i; j++) {
             if (nums[j] > nums[j + 1]) {
@@ -107,8 +91,7 @@ void burbuja(int nums[N], int n) {
     }
 }
 
-// --- Ordenamiento Baraja (Inserción) ---
-void baraja(int nums[N], int n) {
+void baraja(int nums[], int n) {
     int clave, j;
     for (int i = 1; i < n; i++) {
         clave = nums[i];
@@ -121,8 +104,7 @@ void baraja(int nums[N], int n) {
     }
 }
 
-// --- Ordenamiento Selección ---
-void seleccion(int nums[N], int n) {
+void seleccion(int nums[], int n) {
     int min;
     for (int i = 0; i < n - 1; i++) {
         min = i;
@@ -132,6 +114,27 @@ void seleccion(int nums[N], int n) {
             }
         }
         swap(&nums[i], &nums[min]);
+    }
+}
+
+int particion(int nums[], int inf, int sup) {
+    int pivote = nums[sup];
+    int i = inf - 1;
+    for (int j = inf; j < sup; j++) {
+        if (nums[j] <= pivote) {
+            i++;
+            swap(&nums[i], &nums[j]);
+        }
+    }
+    swap(&nums[i + 1], &nums[sup]);
+    return i + 1;
+}
+
+void quicksort(int nums[], int inf, int sup) {
+    if (inf < sup) {
+        int p = particion(nums, inf, sup);
+        quicksort(nums, inf, p - 1);
+        quicksort(nums, p + 1, sup);
     }
 }
 
