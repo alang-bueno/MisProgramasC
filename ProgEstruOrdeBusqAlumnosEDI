@@ -1,0 +1,180 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 10
+
+typedef struct {
+    int numLista;
+    char nombre[50];
+    int edad;
+    float promedio;
+} TAlumnos;
+
+void capturarAlumnos(TAlumnos alumnos[], int n);
+void mostrarAlumnos(TAlumnos alumnos[], int n);
+void quicksort(TAlumnos alumnos[], int primero, int ultimo);
+int busquedaBinaria(TAlumnos alumnos[], int n, int numLista);
+int busquedaSecuencial(TAlumnos alumnos[], int n, char nombre[]);
+
+int main() {
+    TAlumnos alumnos[MAX];
+    int opcion;
+    int numLista, pos;
+    char nombre[50];
+
+    do {
+        printf("\nMENU\n");
+        printf("1. Capturar alumnos\n");
+        printf("2. Mostrar alumnos\n");
+        printf("3. Ordenar por numero de lista (Quicksort)\n");
+        printf("4. Buscar por numero de lista (Binaria)\n");
+        printf("5. Buscar por nombre (Secuencial)\n");
+        printf("6. Salir\n");
+        printf("Selecciona una opcion: ");
+        scanf("%d", &opcion);
+
+        switch(opcion) {
+            case 1:
+                capturarAlumnos(alumnos, MAX);
+                break;
+            case 2:
+                mostrarAlumnos(alumnos, MAX);
+                break;
+            case 3:
+                quicksort(alumnos, 0, MAX - 1);
+                printf("Alumnos ordenados correctamente.\n");
+                break;
+            case 4:
+                printf("Ingresa el numero de lista a buscar: ");
+                scanf("%d", &numLista);
+                pos = busquedaBinaria(alumnos, MAX, numLista);
+                if(pos != -1) {
+                    printf("\nAlumno encontrado:\n");
+                    printf("Numero de lista: %d\n", alumnos[pos].numLista);
+                    printf("Nombre: %s\n", alumnos[pos].nombre);
+                    printf("Edad: %d\n", alumnos[pos].edad);
+                    printf("Promedio: %.2f\n", alumnos[pos].promedio);
+                } else {
+                    printf("Alumno no encontrado.\n");
+                }
+                break;
+            case 5:
+                printf("Ingresa el nombre a buscar: ");
+                scanf(" %[^\n]", nombre);
+                pos = busquedaSecuencial(alumnos, MAX, nombre);
+                if(pos != -1) {
+                    printf("\nAlumno encontrado:\n");
+                    printf("Numero de lista: %d\n", alumnos[pos].numLista);
+                    printf("Nombre: %s\n", alumnos[pos].nombre);
+                    printf("Edad: %d\n", alumnos[pos].edad);
+                    printf("Promedio: %.2f\n", alumnos[pos].promedio);
+                } else {
+                    printf("Alumno no encontrado.\n");
+                }
+                break;
+            case 6:
+                printf("Saliendo del programa...\n");
+                break;
+            default:
+                printf("Opcion invalida.\n");
+        }
+
+    } while(opcion != 6);
+
+    return 0;
+}
+
+void capturarAlumnos(TAlumnos alumnos[], int n) {
+    for(int i = 0; i < n; i++) {
+        printf("\nAlumno %d:\n", i + 1);
+
+        do {
+            printf("Numero de lista: ");
+            scanf("%d", &alumnos[i].numLista);
+            if(alumnos[i].numLista < 0)
+                printf("Valor invalido. Debe ser positivo.\n");
+        } while(alumnos[i].numLista < 0);
+
+        do {
+            printf("Nombre: ");
+            scanf(" %[^\n]", alumnos[i].nombre);
+            int valido = 1;
+            for(int j = 0; j < strlen(alumnos[i].nombre); j++) {
+                if((alumnos[i].nombre[j] < 'A' || alumnos[i].nombre[j] > 'Z') &&
+                   (alumnos[i].nombre[j] < 'a' || alumnos[i].nombre[j] > 'z') &&
+                   alumnos[i].nombre[j] != ' ') {
+                    valido = 0;
+                    break;
+                }
+            }
+            if(!valido || strlen(alumnos[i].nombre) == 0)
+                printf("Nombre invalido.\n");
+            else
+                break;
+        } while(1);
+
+        do {
+            printf("Edad: ");
+            scanf("%d", &alumnos[i].edad);
+            if(alumnos[i].edad < 0)
+                printf("Edad invalida.\n");
+        } while(alumnos[i].edad < 0);
+
+        do {
+            printf("Promedio (0.0 - 10.0): ");
+            scanf("%f", &alumnos[i].promedio);
+            if(alumnos[i].promedio < 0.0 || alumnos[i].promedio > 10.0)
+                printf("Promedio invalido.\n");
+        } while(alumnos[i].promedio < 0.0 || alumnos[i].promedio > 10.0);
+    }
+}
+
+void mostrarAlumnos(TAlumnos alumnos[], int n) {
+    printf("\nLista de Alumnosn");
+    for(int i = 0; i < n; i++) {
+        printf("Num: %d | Nombre: %s | Edad: %d | Promedio: %.2f\n",
+               alumnos[i].numLista, alumnos[i].nombre, alumnos[i].edad, alumnos[i].promedio);
+    }
+}
+
+void quicksort(TAlumnos alumnos[], int primero, int ultimo) {
+    int i = primero, j = ultimo;
+    int pivote = alumnos[(primero + ultimo) / 2].numLista;
+    TAlumnos temp;
+
+    while(i <= j) {
+        while(alumnos[i].numLista < pivote) i++;
+        while(alumnos[j].numLista > pivote) j--;
+        if(i <= j) {
+            temp = alumnos[i];
+            alumnos[i] = alumnos[j];
+            alumnos[j] = temp;
+            i++; j--;
+        }
+    }
+    if(primero < j) quicksort(alumnos, primero, j);
+    if(i < ultimo) quicksort(alumnos, i, ultimo);
+}
+
+int busquedaBinaria(TAlumnos alumnos[], int n, int numLista) {
+    int inicio = 0, fin = n - 1, medio;
+
+    while(inicio <= fin) {
+        medio = (inicio + fin) / 2;
+        if(alumnos[medio].numLista == numLista)
+            return medio;
+        else if(alumnos[medio].numLista < numLista)
+            inicio = medio + 1;
+        else
+            fin = medio - 1;
+    }
+    return -1;
+}
+
+int busquedaSecuencial(TAlumnos alumnos[], int n, char nombre[]) {
+    for(int i = 0; i < n; i++) {
+        if(strcmp(alumnos[i].nombre, nombre) == 0)
+            return i;
+    }
+    return -1;
+}
